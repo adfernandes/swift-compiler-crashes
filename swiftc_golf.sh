@@ -1,4 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+swiftc_command="swiftc"
+swiftc_command_path=$(which ${swiftc_command})
+if [[ ${swiftc_command_path} == "" ]]; then
+    echo "Error: ${swiftc_command} not found in PATH."
+    exit 1
+fi
 
 llvm_symbolizer_path=$(which llvm-symbolizer)
 if [[ ${llvm_symbolizer_path} == "" ]]; then

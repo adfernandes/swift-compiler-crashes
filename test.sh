@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Distributed under the terms of the MIT license
 # Style guide: https://google-styleguide.googlecode.com/svn/trunk/shell.xml
 # Defensive bash programming: http://www.kfirlavi.com/blog/2012/11/14/defensive-bash-programming/
@@ -17,6 +17,11 @@ readonly COLOR_BOLD="\e[1m"
 readonly COLOR_NORMAL_DISPLAY="\e[0m"
 
 swiftc_command="swiftc"
+swiftc_command_path=$(which ${swiftc_command})
+if [[ ${swiftc_command_path} == "" ]]; then
+    echo "Error: ${swiftc_command} not found in PATH."
+    exit 1
+fi
 
 llvm_symbolizer_path=$(which llvm-symbolizer)
 if [[ ${llvm_symbolizer_path} == "" ]]; then
@@ -94,8 +99,8 @@ test_file() {
     compilation_comment=""
   fi
 
-  output_with_llvm_symbolizer=$(egrep '^#[0-9] 0x[0-9a-f]{16} swift::' <<< "${output}" | head -1)
-  output_without_llvm_symbolizer=$(egrep '^[0-9]+ swift +0x[0-9a-f]{16}$' <<< "${output}" | head -1)
+  output_with_llvm_symbolizer=$(grep -E '^#[0-9] 0x[0-9a-f]{16} swift::' <<< "${output}" | head -1)
+  output_without_llvm_symbolizer=$(grep -E '^[0-9]+ swift +0x[0-9a-f]{16}$' <<< "${output}" | head -1)
   if [[ ${output_with_llvm_symbolizer} == "" && ${output_without_llvm_symbolizer} != "" ]]; then
       echo "Error: llvm-symbolizer appears in PATH but does not create the expected stack trace format."
       exit 1
